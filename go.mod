@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/jinzhu/copier v0.4.0
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.39.0
 	go.uber.org/zap v1.27.0
