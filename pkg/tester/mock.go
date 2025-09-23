@@ -1,7 +1,7 @@
 package tester
 
 import (
-	"go-api-arch-mvc-template/pkg/logger"
+	"go-api-arch-clean-template/pkg/logger"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"

@@ -1,34 +1,36 @@
 package tester
 
 import (
+	"fmt"
+	"go-api-arch-clean-template/entity"
+	"go-api-arch-clean-template/infrastructure/database"
 	"os"
 
 	"github.com/stretchr/testify/suite"
-
-	"go-api-arch-mvc-template/app/models"
-	"go-api-arch-mvc-template/configs"
+	"gorm.io/gorm"
 )
 
 type DBSQLiteSuite struct {
 	suite.Suite
+	DB     *gorm.DB
+	DBName string
 }
 
-// テスト前に自動で実行されるsuiteパッケージの機能
 func (suite *DBSQLiteSuite) SetupSuite() {
-	configs.Config.DBName = "unittest.sqlite"
-	err := models.SetDatabase(models.InstanceSqlLite)
+	suite.DBName = fmt.Sprintf("%s.unittest.sqlite", suite.T().Name())
+	os.Setenv("DB_NAME", suite.DBName)
+	db, err := database.NewDatabaseSQLFactory(database.InstanceSQLite)
 	suite.Assert().Nil(err)
+	suite.DB = db
 
-	for _, model := range models.GetModels() {
-		// モデルに応じたテーブルを作成
-		err := models.DB.AutoMigrate(model)
+	for _, model := range entity.NewDomains() {
+		err := suite.DB.AutoMigrate(model)
 		suite.Assert().Nil(err)
 	}
 }
 
-// テスト後に実行されるsuiteパッケージの機能
 func (suite *DBSQLiteSuite) TearDownSuite() {
-	// データベースファイルを削除
-	err := os.Remove(configs.Config.DBName)
+	err := os.Remove(suite.DBName)
 	suite.Assert().Nil(err)
+	os.Unsetenv(suite.DBName)
 }
