@@ -1,0 +1,41 @@
+package web
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+
+	"gorm.io/gorm"
+
+	"go-api-arch-clean-template/adapter/controller/gin/router"
+	"go-api-arch-clean-template/pkg/logger"
+)
+
+type GinWebServer struct {
+	server *http.Server
+}
+
+// サーバーを起動
+func (g *GinWebServer) Start() error {
+	return g.server.ListenAndServe()
+}
+
+// サーバーを停止
+func (g *GinWebServer) Shutdown(ctx context.Context) error {
+	return g.server.Shutdown(ctx)
+}
+
+// サーバーインスタンスを作成
+func NewGinServer(host, port string, corsAllowOrigins []string, db *gorm.DB) (Server, error) {
+	router, err := router.NewGinRouter(db, corsAllowOrigins)
+	if err != nil {
+		logger.Error(err.Error(), "host", host, "port", port)
+		return nil, err
+	}
+	return &GinWebServer{
+		server: &http.Server{
+			Addr:    fmt.Sprintf("%s:%s", host, port),
+			Handler: router,
+		},
+	}, err
+}
